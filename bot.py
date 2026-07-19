@@ -50,6 +50,9 @@ async def check_ss():
 
 
     soup = BeautifulSoup(response.text, "html.parser")
+    
+print("Страница загружена")
+print("Размер HTML:", len(response.text))
 
     links = []
 
@@ -71,9 +74,10 @@ async def check_ss():
         if link not in seen
     ]
 
-print("Всего найдено ссылок:", len(links))
-print("Новые ссылки:", len(new_links))
-print(links[:10])
+print("Найдено ссылок:", len(links))
+print(links[:5])
+
+if new_links:
 
     if new_links:
 
