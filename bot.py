@@ -51,8 +51,7 @@ async def check_ss():
 
     soup = BeautifulSoup(response.text, "html.parser")
     
-print("Страница загружена")
-print("Размер HTML:", len(response.text))
+print("HTML размер:", len(response.text))
 
     links = []
 
