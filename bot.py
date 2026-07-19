@@ -71,6 +71,9 @@ async def check_ss():
         if link not in seen
     ]
 
+print("Всего найдено ссылок:", len(links))
+print("Новые ссылки:", len(new_links))
+print(links[:10])
 
     if new_links:
 
