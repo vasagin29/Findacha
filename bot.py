@@ -26,9 +26,7 @@ def save_seen(seen):
 
 
 async def check_ss():
-
     bot = Bot(token=TOKEN)
-
     seen = load_seen()
 
     headers = {
@@ -41,58 +39,47 @@ async def check_ss():
             headers=headers,
             timeout=15
         )
-
         response.raise_for_status()
 
     except Exception as e:
         print("Ошибка загрузки SS.lv:", e)
         return
 
-
     soup = BeautifulSoup(response.text, "html.parser")
-    
-print("HTML размер:", len(response.text))
+
+    print("HTML размер:", len(response.text))
 
     links = []
 
     for a in soup.find_all("a", href=True):
-
         href = a["href"]
 
         if "/msg/" in href:
-
             if href.startswith("/"):
                 href = "https://www.ss.lv" + href
 
             if href not in links:
                 links.append(href)
 
-
     new_links = [
         link for link in links
         if link not in seen
     ]
 
-print("Найдено ссылок:", len(links))
-print(links[:5])
-
-if new_links:
+    print("Найдено ссылок:", len(links))
+    print(links[:5])
 
     if new_links:
-
         text = "🏡 Новые дачи SS.lv:\n\n"
 
         for link in new_links[:5]:
             text += link + "\n\n"
-
             seen.add(link)
-
 
         await bot.send_message(
             chat_id=CHAT_ID,
             text=text
         )
-
 
         save_seen(seen)
 
