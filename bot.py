@@ -31,7 +31,11 @@ async def check_ss():
     seen = load_seen()
 
     headers = {
-        "User-Agent": "Mozilla/5.0"
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 "
+            "Chrome/120.0.0.0 Safari/537.36"
+        )
     }
 
     try:
@@ -43,10 +47,10 @@ async def check_ss():
         response.raise_for_status()
 
     except Exception as e:
-        print("Ошибка загрузки SS.lv:", e)
+        print("Ошибка загрузки SS.lv:", repr(e), flush=True)
         return
 
-    print("HTML размер:", len(response.text))
+    print("HTML размер:", len(response.text), flush=True)
 
     soup = BeautifulSoup(response.text, "html.parser")
 
@@ -62,42 +66,43 @@ async def check_ss():
             if href not in links:
                 links.append(href)
 
-    print("Найдено ссылок:", len(links))
-    print(links[:5])
+    print("Найдено ссылок:", len(links), flush=True)
+    print(links[:5], flush=True)
 
     new_links = [
         link for link in links
         if link not in seen
     ]
 
-    print("Новых ссылок:", len(new_links))
+    print("Новых ссылок:", len(new_links), flush=True)
 
-    if new_links:
+    if not new_links:
+        print("Новых объявлений нет.", flush=True)
+        return
 
-        text = "🏡 Новые дачи SS.lv:\n\n"
+    text = "🏡 Новые дачи SS.lv:\n\n"
 
-        for link in new_links[:5]:
-            text += link + "\n\n"
+    for link in new_links[:5]:
+        text += link + "\n\n"
 
-        try:
-            await bot.send_message(
-                chat_id=CHAT_ID,
-                text=text
-            )
-            print("✅ Сообщение успешно отправлено!")
+    print("Пытаюсь отправить сообщение...", flush=True)
 
-        except Exception as e:
-            print("❌ Ошибка Telegram:", e)
-            return
+    try:
+        await bot.send_message(
+            chat_id=CHAT_ID,
+            text=text
+        )
+        print("✅ Сообщение успешно отправлено!", flush=True)
 
-        for link in new_links[:5]:
-            seen.add(link)
+    except Exception as e:
+        print("❌ Ошибка Telegram:", repr(e), flush=True)
+        raise
 
-        save_seen(seen)
-        print("✅ seen.json обновлён")
+    for link in new_links[:5]:
+        seen.add(link)
 
-    else:
-        print("Новых объявлений нет.")
+    save_seen(seen)
+    print("✅ seen.json обновлён", flush=True)
 
 
 asyncio.run(check_ss())
