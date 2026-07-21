@@ -4,7 +4,7 @@ import asyncio
 import requests
 from bs4 import BeautifulSoup
 from telegram import Bot
-
+print("BOT VERSION 3")
 
 TOKEN = os.environ["TOKEN"]
 CHAT_ID = os.environ["CHAT_ID"]
