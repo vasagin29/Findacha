@@ -4,7 +4,6 @@ import asyncio
 import requests
 from bs4 import BeautifulSoup
 from telegram import Bot
-print("BOT VERSION 3")
 
 TOKEN = os.environ["TOKEN"]
 CHAT_ID = os.environ["CHAT_ID"]
@@ -27,7 +26,6 @@ def save_seen(seen):
 
 
 async def check_ss():
-
     bot = Bot(token=TOKEN)
 
     seen = load_seen()
@@ -42,13 +40,11 @@ async def check_ss():
             headers=headers,
             timeout=15
         )
-
         response.raise_for_status()
 
     except Exception as e:
         print("Ошибка загрузки SS.lv:", e)
         return
-
 
     print("HTML размер:", len(response.text))
 
@@ -57,27 +53,24 @@ async def check_ss():
     links = []
 
     for a in soup.find_all("a", href=True):
-
         href = a["href"]
 
         if "/msg/" in href:
-
             if href.startswith("/"):
                 href = "https://www.ss.lv" + href
 
             if href not in links:
                 links.append(href)
 
-
     print("Найдено ссылок:", len(links))
     print(links[:5])
-
 
     new_links = [
         link for link in links
         if link not in seen
     ]
 
+    print("Новых ссылок:", len(new_links))
 
     if new_links:
 
@@ -86,18 +79,25 @@ async def check_ss():
         for link in new_links[:5]:
             text += link + "\n\n"
 
+        try:
+            await bot.send_message(
+                chat_id=CHAT_ID,
+                text=text
+            )
+            print("✅ Сообщение успешно отправлено!")
 
-        await bot.send_message(
-            chat_id=CHAT_ID,
-            text=text
-        )
-
+        except Exception as e:
+            print("❌ Ошибка Telegram:", e)
+            return
 
         for link in new_links[:5]:
             seen.add(link)
 
-
         save_seen(seen)
+        print("✅ seen.json обновлён")
+
+    else:
+        print("Новых объявлений нет.")
 
 
 asyncio.run(check_ss())
